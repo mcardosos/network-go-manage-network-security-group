@@ -18,6 +18,7 @@ import (
 	"github.com/Azure/go-autorest/autorest/adal"
 	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/go-autorest/autorest/to"
+	"github.com/Azure/go-autorest/autorest/utils"
 	"github.com/marstr/guid"
 )
 
@@ -41,6 +42,7 @@ var (
 	clientSecret   string
 	tenantID       string
 	authorizer     *autorest.BearerAuthorizer
+	sampleUA       = fmt.Sprintf("sample/0007/%s", utils.GetCommit())
 )
 
 // User adjustable variables to customized execution environment depending on
@@ -105,6 +107,7 @@ func main() {
 	// Create two Network Security Groups, one to be used for front-end requests, another for back-end
 	nsgClient := network.NewSecurityGroupsClient(subscriptionID)
 	nsgClient.Authorizer = authorizer
+	nsgClient.Client.AddToUserAgent(sampleUA)
 
 	frontEndNSG, err := createNetworkSecurityGroup(nsgClient, resourceGroupName, "frontend", cancel)
 	if nil != err {
@@ -121,6 +124,7 @@ func main() {
 	//Create Subnets to host Virtual Machines which will be protected by the rules above.
 	subNetClient := network.NewSubnetsClient(subscriptionID)
 	subNetClient.Authorizer = authorizer
+	subNetClient.Client.AddToUserAgent(sampleUA)
 
 	frontendAddressPrefix := to.StringPtr("192.168.1.0/24")
 	frontendSubnet := network.Subnet{
@@ -161,6 +165,7 @@ func main() {
 	// Create the security rules that should be enforced, and associate them with their respective security group.
 	ruleClient := network.NewSecurityRulesClient(subscriptionID)
 	ruleClient.Authorizer = authorizer
+	ruleClient.Client.AddToUserAgent(sampleUA)
 
 	anyPortRange := "*"
 	anyAddressPrefix := "*"
@@ -333,6 +338,7 @@ func createNetworkSecurityGroup(client network.SecurityGroupsClient, resourceGro
 func createResourceGroup(cancel <-chan struct{}) (resources.GroupsClient, string, error) {
 	resourceGroupClient := resources.NewGroupsClient(subscriptionID)
 	resourceGroupClient.Authorizer = authorizer
+	resourceGroupClient.Client.AddToUserAgent(sampleUA)
 
 	resourceGroupName, err := getUniqueResourceGroupName(resourceGroupClient)
 	if err != nil {
@@ -377,6 +383,7 @@ func createVirtualNetwork(resourceGroupName string, cancel <-chan struct{}) (net
 
 	vNetClient := network.NewVirtualNetworksClient(subscriptionID)
 	vNetClient.Authorizer = authorizer
+	vNetClient.Client.AddToUserAgent(sampleUA)
 
 	_, err := executeWithStatus(func() (autorest.Response, error) {
 		resChan, errChan := vNetClient.CreateOrUpdate(resourceGroupName, networkName, vNetParameters, cancel)
