@@ -1,13 +1,16 @@
 package: github.com/Azure-Samples/network-go-manage-network-security-group
 import:
 - package: github.com/Azure/azure-sdk-for-go
-  version: ~8.0.1-beta
+  version: v10.1.0-beta
   subpackages:
   - arm/network
   - arm/resources/resources
 - package: github.com/Azure/go-autorest
-  version: ~7.2.5
+  version: master
   subpackages:
+  - autorest
   - autorest/azure
+  - autorest/to
+  - autorest/utils
 - package: github.com/marstr/guid
-  version: ~0.2.1
+  version: v1.1.0
